@@ -50,7 +50,7 @@ class ExcelExporter:
                 newer_date = int(article.data)
 
         for article in articles_list:
-            article.data_relativa = int(article.data) / newer_date
+            article.data_relativa = int(article.data) / (newer_date if newer_date > 0 else 1)
 
             # put a score based on number of citations
             if int(article.citacoes) > 100:
@@ -79,8 +79,8 @@ class ExcelExporter:
                 max_citations = int(article.citacoes)
 
         for article in articles_list:
-            article.data_relativa = int(article.data) / newer_date
-            article.citacoes_relativa = int(article.citacoes) / max_citations
+            article.data_relativa = int(article.data) / (newer_date if newer_date > 0 else 1)
+            article.citacoes_relativa = int(article.citacoes) / (max_citations if max_citations > 0 else 1)
 
         self.ordered_date_articles_list = articles_list
         self.ordered_citations_articles_list = articles_list

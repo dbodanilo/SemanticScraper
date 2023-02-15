@@ -56,6 +56,7 @@ class Gerenciador:
         self.arquivo_artigos = os.path.join(diretorio_com_palavra_chave, 'Articles.pkl')
         caminho_autores = Path(self.arquivo_autores)
         caminho_artigos = Path(self.arquivo_artigos)
+        # TODO: use is_dir() instead of is_file()
         if caminho_artigos.is_file() is False:
             self.inicializaArtigos()
         if caminho_autores.is_file() is False:
