@@ -1,4 +1,5 @@
 from json import loads
+from locale import LC_ALL,setlocale,format_string
 from re import sub
 from typing import List, Set
 from requests import get
@@ -82,6 +83,8 @@ class Crawler:
     def start_search(self):
         self.start_time = Timer.timeNow()
 
+        setlocale(LC_ALL, "pt_BR")
+
         # loads files for the inputted search if they exist, otherwise, the files are created
         self.manager = Gerenciador.Gerenciador(self.input_search, self.root_directory)
         self.list_authors = self.manager.loadAutores()
@@ -122,9 +125,12 @@ class Crawler:
         # input now sent directly via request url,
         # with extra whitespace striped
         _search_query = sub(r"\s+", " ", self.input_search.strip())
-        _articles_query_params = { 
+        _article_count = self.input_pages
+        _articles_query_params = {
             "query": _search_query,
-            "fields": "title,authors"
+            "fields": "abstract,authors,citationCount,citationStyles,title,url,venue,year",
+            "offset": 0,
+            "limit": _article_count
         }
 
         # TODO: model expected JSON object types
@@ -181,7 +187,7 @@ class Crawler:
 
         # no need for pagination yet,
         # as number of articles is explicitly set,
-        # in API request
+        # in API request.
         # for pag in range(0, self.input_pages):
             # progress bar
             # self.gui.app.queueFunction(self.gui.app.setMeter, 'progress_bar',
@@ -271,29 +277,33 @@ class Crawler:
             list_authors_in_article: List[Autor] = list(list_authors_in_article)
             list_authors_in_article.sort()
 
-            # currently no origin comes in API response.
-            # TODO: get origin from API response.
+            # origin comes as "venue" in API response.
+            origin = item["venue"]
             # saves the article origin as a string
-            origin = '-'
+            # origin = '-'
             # try:
             #     origin = item.find_element_by_xpath(".//span[@data-selenium-selector='venue-metadata']").text
             # except:
             #     pass
 
-            # currently no date comes in API response.
-            # TODO: get date from API response.
+            # date comes as "year" in API response.
+            _year = item["year"]
+            # TODO: log when field comes empty,
+            # print paper id, field name and its value.
+            date = str(_year) if _year else "0"
             # saves the article date as a string
-            date = '0'
+            # date = '0'
             # try:
             #     full_date = item.find_element_by_xpath(".//span[@class='cl-paper-pubdates']").text
             #     date = full_date.split()[-1]
             # except:
             #     pass
 
-            # currently no citations comes in API response.
-            # TODO: get citations from API response.
+            # citationCount comes as a number in API response.
+            _citationCount = item["citationCount"]
+            citationCount = format_string("%d", int(_citationCount), grouping=True) if _citationCount else "0"
             # saves the article total citations as a string
-            citations = '0'
+            # citations = '0'
             # try:
             #     citations = item.find_element_by_xpath(
             #         ".//div[@data-selenium-selector='total-citations-stat']").text
@@ -302,10 +312,10 @@ class Crawler:
             # except:
             #     pass
 
-            # currently no link comes in API response.
-            # TODO: get link from API response.
+            # link comes as "url" in API response.
+            link = item["url"]
             # saves the article html link as a string
-            link = '-'
+            # link = '-'
             # try:
             #     link = item.find_element_by_xpath(".//a[@class='flex-row cl-paper-view-paper']")\
             #         .get_attribute('href')
@@ -313,10 +323,12 @@ class Crawler:
             #     pass
 
             # currently no type comes in API response.
-            # TODO: get type from API response.
+            _citationStyles = item["citationStyles"]
+            bibtex = _citationStyles["bibtex"] if _citationStyles else "-"
+            cite = self.return_type_cite(bibtex)
             # saves the article type as a string
-            cite = '-'
-            bibtex = '-'
+            # bibtex = '-'
+            # cite = '-'
             # try:
             #     item.find_element_by_xpath(".//button[@data-selenium-selector='cite-link']").click()
             #     try:
@@ -336,10 +348,10 @@ class Crawler:
             # except:
             #     pass
 
-            # currently no synopsis comes in API response.
-            # TODO: get synopsis from API response.
+            # synopsis comes as "abstract" in API response.
+            synopsis = item["abstract"]
             # saves the article synopsis as a string
-            synopsis = 'No synopsis'
+            # synopsis = 'No synopsis'
             # try:
             #     element = item.find_element_by_xpath(".//div[@class='tldr-abstract-replacement text-truncator']")
             #     synopsis = element.text.replace(" Expand", "")
@@ -349,7 +361,7 @@ class Crawler:
 
             # creates a new instance of a Article object
             new_article = Artigo(title, list_authors_in_article, origin, date,
-                                        citations, link, cite, bibtex, synopsis)
+                                        citationCount, link, cite, bibtex, synopsis)
 
             # adds new article to set list (set list does not allow duplicates)
             before = len(self.list_articles)

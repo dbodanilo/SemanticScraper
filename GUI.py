@@ -57,9 +57,9 @@ class GUI:
         self.app.addLabel('Label_Search', 'Enter your search phrase:', row=0)
         self.app.addEntry('Entry_Search', row=1)
         self.app.addLabel('label_space', '', row=2)
-        self.app.addLabel('Label_Pages_Quantity', 'Select how many pages would you like to search:', row=3)
+        self.app.addLabel('Label_Pages_Quantity', 'Select how many articles you would like to search:', row=3)
         self.app.addScale('Quantity_scale', row=4)
-        self.app.setScaleRange('Quantity_scale', 0, 50, 5)
+        self.app.setScaleRange('Quantity_scale', 0, 100, 10)
         self.app.showScaleIntervals('Quantity_scale', 5)
         self.app.showScaleValue('Quantity_scale', True)
         self.app.setStretch('both')
@@ -215,7 +215,7 @@ class GUI:
             self.search_phrase = self.app.getEntry('Entry_Search')
             self.input_pages = self.app.getScale('Quantity_scale')
             if self.input_pages == 0:
-                self.app.errorBox('Error!', 'Selecting 0 pages will end up with a empty search!')
+                self.app.errorBox('Error!', 'Selecting 0 articles will end up with a empty search!')
             else:
                 self.app.nextFrame("Pages")
 
