@@ -1,6 +1,5 @@
 import os
 import pickle
-import ExcelExporter
 
 
 class Merger:
@@ -12,9 +11,7 @@ class Merger:
         directory_files = os.path.join(current_directory, 'Results', 'Merged Search')
 
         # check if the Files folder exists and creates it if not
-        if os.path.exists(directory_files):
-            pass
-        else:
+        if not os.path.exists(directory_files):
             os.chdir(os.path.join(current_directory, 'Results'))
             os.mkdir('Merged Search')
 
